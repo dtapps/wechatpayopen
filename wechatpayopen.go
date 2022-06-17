@@ -6,58 +6,64 @@ import (
 	"gorm.io/gorm"
 )
 
-// App 微信支付服务器
-type App struct {
-	spAppid        string         // 服务商应用ID
-	spMchId        string         // 服务商户号
-	subAppid       string         // 子商户应用ID
-	subMchId       string         // 子商户号
-	apiV2          string         // APIv2密钥
-	apiV3          string         // APIv3密钥
-	serialNo       string         // 序列号
-	mchSslSerialNo string         // pem 证书号
-	mchSslCer      string         // pem 内容
-	mchSslKey      string         // pem key 内容
-	pgsql          *gorm.DB       // pgsql数据库
-	client         *gorequest.App // 请求客户端
-	log            *golog.Api     // 日志服务
-	logTableName   string         // 日志表名
-	logStatus      bool           // 日志状态
+type ConfigClient struct {
+	SpAppid        string   // 服务商应用ID
+	SpMchId        string   // 服务商户号
+	SubAppid       string   // 子商户应用ID
+	SubMchId       string   // 子商户号
+	ApiV2          string   // APIv2密钥
+	ApiV3          string   // APIv3密钥
+	SerialNo       string   // 序列号
+	MchSslSerialNo string   // pem 证书号
+	MchSslCer      string   // pem 内容
+	MchSslKey      string   // pem key 内容
+	PgsqlDb        *gorm.DB // pgsql数据库
 }
 
-// NewApp 实例化
-func NewApp(spAppid, spMchId, subAppid, subMchId, apiV2, apiV3, serialNo, mchSslSerialNo, mchSslCer, mchSslKey string, pgsql *gorm.DB) *App {
-	app := &App{spAppid: spAppid, spMchId: spMchId, subAppid: subAppid, subMchId: subMchId, apiV2: apiV2, apiV3: apiV3, serialNo: serialNo, mchSslSerialNo: mchSslSerialNo, mchSslCer: mchSslCer, mchSslKey: mchSslKey}
-	app.client = gorequest.NewHttp()
-	if pgsql != nil {
-		app.pgsql = pgsql
-		app.logStatus = true
-		app.logTableName = "wechatpayopen"
-		app.log = golog.NewApi(&golog.ApiConfig{
-			Db:        pgsql,
-			TableName: app.logTableName,
+// Client 微信支付服务
+type Client struct {
+	client       *gorequest.App // 请求客户端
+	log          *golog.Api     // 日志服务
+	logTableName string         // 日志表名
+	logStatus    bool           // 日志状态
+	config       *ConfigClient  // 配置
+}
+
+// NewClient 实例化
+func NewClient(config *ConfigClient) *Client {
+
+	c := &Client{config: config}
+
+	c.client = gorequest.NewHttp()
+	if c.config.PgsqlDb != nil {
+		c.logStatus = true
+		c.logTableName = "wechatpayopen"
+		c.log = golog.NewApi(&golog.ApiConfig{
+			Db:        c.config.PgsqlDb,
+			TableName: c.logTableName,
 		})
 	}
-	return app
+
+	return c
 }
 
-// NewAppConfig 实例化
-func (app *App) NewAppConfig(subAppid, subMchId string) *App {
-	app.subAppid = subAppid
-	app.subMchId = subMchId
-	return app
+// SubConfig 子商户配置
+func (c *Client) SubConfig(subAppid, subMchId string) *Client {
+	c.config.SpAppid = subAppid
+	c.config.SubMchId = subMchId
+	return c
 }
 
-func (app *App) request(url string, params map[string]interface{}, method string) (resp gorequest.Response, err error) {
+func (c *Client) request(url string, params map[string]interface{}, method string) (resp gorequest.Response, err error) {
 
 	// 认证
-	authorization, err := app.authorization(method, params, url)
+	authorization, err := c.authorization(method, params, url)
 	if err != nil {
 		return gorequest.Response{}, err
 	}
 
 	// 创建请求
-	client := app.client
+	client := c.client
 
 	// 设置请求地址
 	client.SetUri(url)
@@ -83,8 +89,8 @@ func (app *App) request(url string, params map[string]interface{}, method string
 	}
 
 	// 日志
-	if app.logStatus == true {
-		go app.postgresqlLog(request)
+	if c.logStatus == true {
+		go c.postgresqlLog(request)
 	}
 
 	return request, err
