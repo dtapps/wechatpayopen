@@ -55,14 +55,15 @@ type PayPartnerTransactionsOutTradeNoResponse struct {
 }
 
 type PayPartnerTransactionsOutTradeNoResult struct {
-	Result PayPartnerTransactionsOutTradeNoResponse // 结果
-	Body   []byte                                   // 内容
-	Http   gorequest.Response                       // 请求
-	Err    error                                    // 错误
+	Result   PayPartnerTransactionsOutTradeNoResponse // 结果
+	Body     []byte                                   // 内容
+	Http     gorequest.Response                       // 请求
+	Err      error                                    // 错误
+	ApiError ApiError                                 // 接口错误
 }
 
-func NewPayPartnerTransactionsOutTradeNoResult(result PayPartnerTransactionsOutTradeNoResponse, body []byte, http gorequest.Response, err error) *PayPartnerTransactionsOutTradeNoResult {
-	return &PayPartnerTransactionsOutTradeNoResult{Result: result, Body: body, Http: http, Err: err}
+func newPayPartnerTransactionsOutTradeNoResult(result PayPartnerTransactionsOutTradeNoResponse, body []byte, http gorequest.Response, err error, apiError ApiError) *PayPartnerTransactionsOutTradeNoResult {
+	return &PayPartnerTransactionsOutTradeNoResult{Result: result, Body: body, Http: http, Err: err, ApiError: apiError}
 }
 
 // PayPartnerTransactionsOutTradeNo 商户订单号查询
@@ -71,12 +72,15 @@ func (c *Client) PayPartnerTransactionsOutTradeNo(outTradeNo string) *PayPartner
 	// 参数
 	params := gorequest.NewParams()
 	// 请求
-	request, err := c.request(fmt.Sprintf("https://api.mch.weixin.qq.com/v3/pay/partner/transactions/out-trade-no/%s?sp_mchid=%s&sub_mchid=%s", outTradeNo, c.config.SpMchId, c.config.SubMchId), params, http.MethodGet)
+	request, err := c.request(fmt.Sprintf(apiUrl+"/v3/pay/partner/transactions/out-trade-no/%s?sp_mchid=%s&sub_mchid=%s", outTradeNo, c.config.SpMchId, c.config.SubMchId), params, http.MethodGet)
 	if err != nil {
-		return NewPayPartnerTransactionsOutTradeNoResult(PayPartnerTransactionsOutTradeNoResponse{}, request.ResponseBody, request, err)
+		return newPayPartnerTransactionsOutTradeNoResult(PayPartnerTransactionsOutTradeNoResponse{}, request.ResponseBody, request, err, ApiError{})
 	}
 	// 定义
 	var response PayPartnerTransactionsOutTradeNoResponse
 	err = json.Unmarshal(request.ResponseBody, &response)
-	return NewPayPartnerTransactionsOutTradeNoResult(response, request.ResponseBody, request, err)
+	// 错误
+	var apiError ApiError
+	err = json.Unmarshal(request.ResponseBody, &apiError)
+	return newPayPartnerTransactionsOutTradeNoResult(response, request.ResponseBody, request, err, apiError)
 }

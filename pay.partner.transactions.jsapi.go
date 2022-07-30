@@ -11,14 +11,15 @@ type PayPartnerTransactionsJsapiResponse struct {
 }
 
 type PayPartnerTransactionsJsapiResult struct {
-	Result PayPartnerTransactionsJsapiResponse // 结果
-	Body   []byte                              // 内容
-	Http   gorequest.Response                  // 请求
-	Err    error                               // 错误
+	Result   PayPartnerTransactionsJsapiResponse // 结果
+	Body     []byte                              // 内容
+	Http     gorequest.Response                  // 请求
+	Err      error                               // 错误
+	ApiError ApiError                            // 接口错误
 }
 
-func NewPayPartnerTransactionsJsapiResult(result PayPartnerTransactionsJsapiResponse, body []byte, http gorequest.Response, err error) *PayPartnerTransactionsJsapiResult {
-	return &PayPartnerTransactionsJsapiResult{Result: result, Body: body, Http: http, Err: err}
+func newPayPartnerTransactionsJsapiResult(result PayPartnerTransactionsJsapiResponse, body []byte, http gorequest.Response, err error, apiError ApiError) *PayPartnerTransactionsJsapiResult {
+	return &PayPartnerTransactionsJsapiResult{Result: result, Body: body, Http: http, Err: err, ApiError: apiError}
 }
 
 // PayPartnerTransactionsJsapi JSAPI下单
@@ -31,12 +32,15 @@ func (c *Client) PayPartnerTransactionsJsapi(notMustParams ...gorequest.Params) 
 	params.Set("sub_appid", c.config.SubAppid) // 子商户应用ID
 	params.Set("sub_mchid", c.config.SubMchId) // 子商户号
 	// 请求
-	request, err := c.request("https://api.mch.weixin.qq.com/v3/pay/partner/transactions/jsapi", params, http.MethodPost)
+	request, err := c.request(apiUrl+"/v3/pay/partner/transactions/jsapi", params, http.MethodPost)
 	if err != nil {
-		return NewPayPartnerTransactionsJsapiResult(PayPartnerTransactionsJsapiResponse{}, request.ResponseBody, request, err)
+		return newPayPartnerTransactionsJsapiResult(PayPartnerTransactionsJsapiResponse{}, request.ResponseBody, request, err, ApiError{})
 	}
-	// 定义
+	// 结果
 	var response PayPartnerTransactionsJsapiResponse
 	err = json.Unmarshal(request.ResponseBody, &response)
-	return NewPayPartnerTransactionsJsapiResult(response, request.ResponseBody, request, err)
+	// 错误
+	var apiError ApiError
+	err = json.Unmarshal(request.ResponseBody, &apiError)
+	return newPayPartnerTransactionsJsapiResult(response, request.ResponseBody, request, err, apiError)
 }

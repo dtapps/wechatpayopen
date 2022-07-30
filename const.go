@@ -4,13 +4,17 @@ import "time"
 
 // 微信支付 API 地址
 const (
-	WechatPayAPIServer       = "https://api.mch.weixin.qq.com"  // 微信支付 API 地址
+	apiUrl                   = "https://api.mch.weixin.qq.com"
 	WechatPayAPIServerBackup = "https://api2.mch.weixin.qq.com" // 微信支付 API 备份地址
+)
+
+const (
+	logTable = "wechatpayopen"
 )
 
 // SDK 相关信息
 const (
-	Version         = "1.0.1"                      // SDK 版本
+	Version         = "1.0.2"                      // SDK 版本
 	UserAgentFormat = "WechatPay-Go/%s (%s) GO/%s" // UserAgent中的信息
 )
 
@@ -60,4 +64,13 @@ func getAuthorizationType() string {
 // 返回使用的签名算法：SHA256-RSA2048
 func algorithm() string {
 	return "SHA256-RSA2048"
+}
+
+const (
+	CodeSuccess = "SUCCESS"
+)
+
+type ApiError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
 }
