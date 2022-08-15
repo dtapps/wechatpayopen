@@ -18,7 +18,7 @@ type ConfigClient struct {
 	MchSslCer      string           // pem 内容
 	MchSslKey      string           // pem key 内容
 	GormClient     *dorm.GormClient // 日志数据库
-	LogClient      *golog.GoLog     // 日志驱动
+	LogClient      *golog.ZapLog    // 日志驱动
 	LogDebug       bool             // 日志开关
 }
 
