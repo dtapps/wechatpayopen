@@ -6,48 +6,86 @@ import (
 	"go.dtapp.net/gorequest"
 )
 
-type ConfigClient struct {
-	SpAppid        string           // 服务商应用ID
-	SpMchId        string           // 服务商户号
-	SubAppid       string           // 子商户应用ID
-	SubMchId       string           // 子商户号
-	ApiV2          string           // APIv2密钥
-	ApiV3          string           // APIv3密钥
-	SerialNo       string           // 序列号
-	MchSslSerialNo string           // pem 证书号
-	MchSslCer      string           // pem 内容
-	MchSslKey      string           // pem key 内容
-	GormClient     *dorm.GormClient // 日志数据库
-	LogClient      *golog.ZapLog    // 日志驱动
-	LogDebug       bool             // 日志开关
-}
-
-// Client 微信支付服务
+// Client 实例
 type Client struct {
-	requestClient *gorequest.App   // 请求服务
-	logClient     *golog.ApiClient // 日志服务
-	config        *ConfigClient    // 配置
+	requestClient *gorequest.App // 请求服务
+	config        struct {
+		spAppid        string // 服务商应用ID
+		spMchId        string // 服务商户号
+		subAppid       string // 子商户应用ID
+		subMchId       string // 子商户号
+		apiV2          string // APIv2密钥
+		apiV3          string // APIv3密钥
+		serialNo       string // 序列号
+		mchSslSerialNo string // pem 证书号
+		mchSslCer      string // pem 内容
+		mchSslKey      string // pem key 内容
+	}
+	log struct {
+		gormClient     *dorm.GormClient  // 日志数据库
+		gorm           bool              // 日志开关
+		logGormClient  *golog.ApiClient  // 日志服务
+		mongoClient    *dorm.MongoClient // 日志数据库
+		mongo          bool              // 日志开关
+		logMongoClient *golog.ApiClient  // 日志服务
+	}
 }
 
-// NewClient 实例化
-func NewClient(config *ConfigClient) (*Client, error) {
+// client *dorm.GormClient
+type gormClientFun func() *dorm.GormClient
+
+// client *dorm.MongoClient
+// databaseName string
+type mongoClientFun func() (*dorm.MongoClient, string)
+
+// NewClient 创建实例化
+// spAppid 服务商应用ID
+// spMchId 服务商户号
+// apiV2 APIv2密钥
+// apiV3 APIv3密钥
+// serialNo 序列号
+// mchSslSerialNo pem 证书号
+// mchSslCer pem 内容
+// mchSslKey pem key 内容
+func NewClient(spAppid, spMchId, apiV2, apiV3, serialNo, mchSslSerialNo, mchSslCer, mchSslKey string, gormClientFun gormClientFun, mongoClientFun mongoClientFun, debug bool) (*Client, error) {
 
 	var err error
-	c := &Client{config: config}
+	c := &Client{}
+
+	c.config.spAppid = spAppid
+	c.config.spMchId = spMchId
+	c.config.apiV2 = apiV2
+	c.config.apiV3 = apiV3
+	c.config.serialNo = serialNo
+	c.config.mchSslSerialNo = mchSslSerialNo
+	c.config.mchSslCer = mchSslCer
+	c.config.mchSslKey = mchSslKey
 
 	c.requestClient = gorequest.NewHttp()
 
-	if c.config.GormClient.Db != nil {
-		c.logClient, err = golog.NewApiClient(&golog.ApiClientConfig{
-			GormClient: c.config.GormClient,
-			TableName:  logTable,
-			LogClient:  c.config.LogClient,
-			LogDebug:   c.config.LogDebug,
-		})
+	gormClient := gormClientFun()
+	if gormClient.Db != nil {
+		c.log.logGormClient, err = golog.NewApiGormClient(func() (*dorm.GormClient, string) {
+			return gormClient, logTable
+		}, debug)
 		if err != nil {
 			return nil, err
 		}
+		c.log.gorm = true
 	}
+	c.log.gormClient = gormClient
+
+	mongoClient, databaseName := mongoClientFun()
+	if mongoClient.Db != nil {
+		c.log.logMongoClient, err = golog.NewApiMongoClient(func() (*dorm.MongoClient, string, string) {
+			return mongoClient, databaseName, logTable
+		}, debug)
+		if err != nil {
+			return nil, err
+		}
+		c.log.mongo = true
+	}
+	c.log.mongoClient = mongoClient
 
 	return c, nil
 }

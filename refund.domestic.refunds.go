@@ -66,7 +66,7 @@ func newRefundDomesticRefundsResult(result RefundDomesticRefundsResponse, body [
 func (c *Client) RefundDomesticRefunds(ctx context.Context, notMustParams ...gorequest.Params) *RefundDomesticRefundsResult {
 	// 参数
 	params := gorequest.NewParamsWith(notMustParams...)
-	params.Set("sub_mchid", c.config.SubMchId) // 子商户号
+	params.Set("sub_mchid", c.GetSubMchId()) // 子商户号
 	// 请求
 	request, err := c.request(ctx, apiUrl+"/v3/refund/domestic/refunds", params, http.MethodPost)
 	if err != nil {

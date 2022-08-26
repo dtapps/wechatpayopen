@@ -69,7 +69,7 @@ func (c *Client) PayPartnerTransactionsId(ctx context.Context, transactionId str
 	// 参数
 	params := gorequest.NewParams()
 	// 请求
-	request, err := c.request(ctx, fmt.Sprintf(apiUrl+"/v3/pay/partner/transactions/id/%s?sp_mchid=%s&sub_mchid=%s", transactionId, c.config.SpMchId, c.config.SubMchId), params, http.MethodGet)
+	request, err := c.request(ctx, fmt.Sprintf(apiUrl+"/v3/pay/partner/transactions/id/%s?sp_mchid=%s&sub_mchid=%s", transactionId, c.GetSpMchId(), c.GetSubMchId()), params, http.MethodGet)
 	if err != nil {
 		return newPayPartnerTransactionsIdResult(PayPartnerTransactionsIdResponse{}, request.ResponseBody, request, err)
 	}

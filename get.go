@@ -1,17 +1,25 @@
 package wechatpayopen
 
 func (c *Client) GetSpAppid() string {
-	return c.config.SpAppid
+	return c.config.spAppid
 }
 
 func (c *Client) GetSpMchId() string {
-	return c.config.SpMchId
+	return c.config.spMchId
 }
 
 func (c *Client) GetSubAppid() string {
-	return c.config.SubAppid
+	return c.config.subAppid
 }
 
 func (c *Client) GetSubMchId() string {
-	return c.config.SubMchId
+	return c.config.subMchId
+}
+
+func (c *Client) GetMchSslKey() string {
+	return c.config.mchSslKey
+}
+
+func (c *Client) GetMchSslSerialNo() string {
+	return c.config.mchSslSerialNo
 }

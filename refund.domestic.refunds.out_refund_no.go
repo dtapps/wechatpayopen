@@ -67,7 +67,7 @@ func (c *Client) RefundDomesticRefundsOutRefundNo(ctx context.Context, outRefund
 	// 参数
 	params := gorequest.NewParams()
 	// 请求
-	request, err := c.request(ctx, apiUrl+"/v3/refund/domestic/refunds/"+outRefundNo+"?sub_mchid="+c.config.SubMchId, params, http.MethodGet)
+	request, err := c.request(ctx, apiUrl+"/v3/refund/domestic/refunds/"+outRefundNo+"?sub_mchid="+c.GetSubMchId(), params, http.MethodGet)
 	if err != nil {
 		return newRefundDomesticRefundsOutRefundNoResult(RefundDomesticRefundsOutRefundNoResponse{}, request.ResponseBody, request, err)
 	}
