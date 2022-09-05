@@ -28,6 +28,9 @@ func (c *Client) request(ctx context.Context, url string, params map[string]inte
 	// 设置参数
 	client.SetParams(params)
 
+	// 设置用户代理
+	client.SetUserAgent(gorequest.GetRandomUserAgentSystem())
+
 	// 设置头部
 	client.SetHeader("Authorization", authorization)
 	client.SetHeader("Accept", "application/json")
