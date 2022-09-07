@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RefundDomesticRefundsNoNotifyGinRequest 申请退款API - 回调通知 - 请求参数
-type RefundDomesticRefundsNoNotifyGinRequest struct {
+// ProfitSharingReceiversNotifyGinRequest 分账动账通知API - 回调通知 - 请求参数
+type ProfitSharingReceiversNotifyGinRequest struct {
 	Id           string `form:"id" json:"status" xml:"id" uri:"id" binding:"required"`                                         // 通知ID
 	CreateTime   string `form:"create_time" json:"create_time" xml:"create_time" uri:"create_time" binding:"required"`         // 通知创建时间
 	EventType    string `form:"event_type" json:"event_type" xml:"event_type" uri:"event_type" binding:"required"`             // 通知类型
@@ -22,9 +22,9 @@ type RefundDomesticRefundsNoNotifyGinRequest struct {
 	} `form:"resource" json:"resource" xml:"resource" uri:"resource" binding:"required"` // 通知数据
 }
 
-// RefundDomesticRefundsNoNotifyGin 申请退款API - 回调通知
-// https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_1_11.shtml
-func (c *Client) RefundDomesticRefundsNoNotifyGin(ctx context.Context, ginCtx *gin.Context) (validateJson RefundDomesticRefundsNoNotifyGinRequest, response RefundDomesticRefundsNoNotifyGinResponse, gcm []byte, err error) {
+// ProfitSharingReceiversNotifyGin 分账动账通知API - 回调通知
+// https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_1_5.shtml
+func (c *Client) ProfitSharingReceiversNotifyGin(ctx context.Context, ginCtx *gin.Context) (validateJson ProfitSharingReceiversNotifyGinRequest, response ProfitSharingReceiversNotifyGinResponse, gcm []byte, err error) {
 
 	// 解析
 	err = ginCtx.ShouldBind(&validateJson)
@@ -39,21 +39,18 @@ func (c *Client) RefundDomesticRefundsNoNotifyGin(ctx context.Context, ginCtx *g
 	return validateJson, response, gcm, err
 }
 
-// RefundDomesticRefundsNoNotifyGinResponse 申请退款API - 回调通知 - 解密后数据
-type RefundDomesticRefundsNoNotifyGinResponse struct {
-	SpMchid             string `json:"sp_mchid"`              // 服务商户号
-	SubMchid            string `json:"sub_mchid"`             // 子商户号
-	OutTradeNo          string `json:"out_trade_no"`          // 商户订单号
-	TransactionId       string `json:"transaction_id"`        // 微信支付订单号
-	OutRefundNo         string `json:"out_refund_no"`         // 商户退款单号
-	RefundId            string `json:"refund_id"`             // 微信支付退款单号
-	RefundStatus        string `json:"refund_status"`         // 退款状态
-	SuccessTime         string `json:"success_time"`          // 退款成功时间
-	UserReceivedAccount string `json:"user_received_account"` // 退款入账账户
-	Amount              struct {
-		Total       int `json:"total"`        // 订单金额
-		Refund      int `json:"refund"`       // 退款金额
-		PayerTotal  int `json:"payer_total"`  // 用户支付金额
-		PayerRefund int `json:"payer_refund"` // 用户退款金额
-	} `json:"amount"` // 金额信息
+// ProfitSharingReceiversNotifyGinResponse 分账动账通知API - 回调通知 - 解密后数据
+type ProfitSharingReceiversNotifyGinResponse struct {
+	SpMchid       string `json:"sp_mchid"`       // 服务商商户号
+	SubMchid      string `json:"sub_mchid"`      // 子商户号
+	TransactionId string `json:"transaction_id"` // 微信订单号
+	OrderId       string `json:"order_id"`       // 微信分账/回退单号
+	OutOrderNo    string `json:"out_order_no"`   // 商户分账/回退单号
+	Receiver      struct {
+		Type        string `json:"type"`        // 分账接收方类型
+		Account     string `json:"account"`     // 分账接收方账号
+		Amount      int    `json:"amount"`      // 分账动账金额
+		Description string `json:"description"` // 分账/回退描述
+	} `json:"receiver"` // 分账接收方列表
+	SuccessTime string `json:"success_time"` // 成功时间
 }
