@@ -23,3 +23,7 @@ func (c *Client) GetMchSslKey() string {
 func (c *Client) GetMchSslSerialNo() string {
 	return c.config.mchSslSerialNo
 }
+
+func (c *Client) GetApiV3() string {
+	return c.config.apiV3
+}
