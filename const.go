@@ -14,7 +14,7 @@ const (
 
 // SDK 相关信息
 const (
-	Version         = "1.0.15"                     // SDK 版本
+	Version         = "1.0.16"                     // SDK 版本
 	UserAgentFormat = "WechatPay-Go/%s (%s) GO/%s" // UserAgent中的信息
 )
 
@@ -74,3 +74,9 @@ type ApiError struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 }
+
+const (
+	MERCHANT_ID         = "MERCHANT_ID"
+	PERSONAL_OPENID     = "PERSONAL_OPENID"
+	PERSONAL_SUB_OPENID = "PERSONAL_SUB_OPENID"
+)
