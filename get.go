@@ -1,5 +1,7 @@
 package wechatpayopen
 
+import "go.dtapp.net/golog"
+
 func (c *Client) GetSpAppid() string {
 	return c.config.spAppid
 }
@@ -26,4 +28,12 @@ func (c *Client) GetMchSslSerialNo() string {
 
 func (c *Client) GetApiV3() string {
 	return c.config.apiV3
+}
+
+func (c *Client) GetLogGorm() *golog.ApiClient {
+	return c.log.logGormClient
+}
+
+func (c *Client) GetLogMongo() *golog.ApiClient {
+	return c.log.logMongoClient
 }
