@@ -30,6 +30,6 @@ func (c *Client) GetApiV3() string {
 	return c.config.apiV3
 }
 
-func (c *Client) GetLogGorm() *golog.ApiClient {
+func (c *Client) GetLog() *golog.ApiClient {
 	return c.log.client
 }
