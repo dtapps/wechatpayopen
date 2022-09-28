@@ -11,7 +11,7 @@ const (
 // SDK 相关信息
 const (
 	LogTable        = "wechatpayopen"
-	Version         = "1.0.23"                     // SDK 版本
+	Version         = "1.0.24"                     // SDK 版本
 	UserAgentFormat = "WechatPay-Go/%s (%s) GO/%s" // UserAgent中的信息
 )
 
