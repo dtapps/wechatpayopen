@@ -2,7 +2,7 @@ package wechatpayopen
 
 import (
 	"context"
-	"encoding/json"
+	"go.dtapp.net/gojson"
 	"go.dtapp.net/gorequest"
 	"net/http"
 )
@@ -14,20 +14,18 @@ type ProfitSharingReceiversDeleteResponse struct {
 }
 
 type ProfitSharingReceiversDeleteResult struct {
-	Result   ProfitSharingReceiversDeleteResponse // 结果
-	Body     []byte                               // 内容
-	Http     gorequest.Response                   // 请求
-	Err      error                                // 错误
-	ApiError ApiError                             // 接口错误
+	Result ProfitSharingReceiversDeleteResponse // 结果
+	Body   []byte                               // 内容
+	Http   gorequest.Response                   // 请求
 }
 
-func newProfitSharingReceiversDeleteResult(result ProfitSharingReceiversDeleteResponse, body []byte, http gorequest.Response, err error, apiError ApiError) *ProfitSharingReceiversDeleteResult {
-	return &ProfitSharingReceiversDeleteResult{Result: result, Body: body, Http: http, Err: err, ApiError: apiError}
+func newProfitSharingReceiversDeleteResult(result ProfitSharingReceiversDeleteResponse, body []byte, http gorequest.Response) *ProfitSharingReceiversDeleteResult {
+	return &ProfitSharingReceiversDeleteResult{Result: result, Body: body, Http: http}
 }
 
 // ProfitSharingReceiversDelete 删除分账接收方API
 // https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter8_1_9.shtml
-func (c *Client) ProfitSharingReceiversDelete(ctx context.Context, Type, account string) *ProfitSharingReceiversDeleteResult {
+func (c *Client) ProfitSharingReceiversDelete(ctx context.Context, Type, account string) (*ProfitSharingReceiversDeleteResult, ApiError, error) {
 	// 参数
 	params := gorequest.NewParams()
 	params.Set("sub_mchid", c.GetSubMchId()) // 子商户号
@@ -46,13 +44,13 @@ func (c *Client) ProfitSharingReceiversDelete(ctx context.Context, Type, account
 	// 请求
 	request, err := c.request(ctx, apiUrl+"/v3/profitsharing/receivers/delete", params, http.MethodPost)
 	if err != nil {
-		return newProfitSharingReceiversDeleteResult(ProfitSharingReceiversDeleteResponse{}, request.ResponseBody, request, err, ApiError{})
+		return newProfitSharingReceiversDeleteResult(ProfitSharingReceiversDeleteResponse{}, request.ResponseBody, request), ApiError{}, err
 	}
 	// 定义
 	var response ProfitSharingReceiversDeleteResponse
-	err = json.Unmarshal(request.ResponseBody, &response)
+	err = gojson.Unmarshal(request.ResponseBody, &response)
 	// 错误
 	var apiError ApiError
-	err = json.Unmarshal(request.ResponseBody, &apiError)
-	return newProfitSharingReceiversDeleteResult(response, request.ResponseBody, request, err, apiError)
+	err = gojson.Unmarshal(request.ResponseBody, &apiError)
+	return newProfitSharingReceiversDeleteResult(response, request.ResponseBody, request), apiError, err
 }

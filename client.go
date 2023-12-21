@@ -2,7 +2,6 @@ package wechatpayopen
 
 import (
 	"go.dtapp.net/golog"
-	"go.dtapp.net/gorequest"
 )
 
 // ClientConfig 实例配置
@@ -19,8 +18,7 @@ type ClientConfig struct {
 
 // Client 实例
 type Client struct {
-	requestClient *gorequest.App // 请求服务
-	config        struct {
+	config struct {
 		spAppid        string // 服务商应用ID
 		spMchId        string // 服务商户号
 		subAppid       string // 子商户应用ID
@@ -32,9 +30,9 @@ type Client struct {
 		mchSslCer      string // pem 内容
 		mchSslKey      string // pem key 内容
 	}
-	log struct {
-		status bool             // 状态
-		client *golog.ApiClient // 日志服务
+	gormLog struct {
+		status bool           // 状态
+		client *golog.ApiGorm // 日志服务
 	}
 }
 
@@ -51,8 +49,6 @@ func NewClient(config *ClientConfig) (*Client, error) {
 	c.config.mchSslSerialNo = config.MchSslSerialNo
 	c.config.mchSslCer = config.MchSslCer
 	c.config.mchSslKey = config.MchSslKey
-
-	c.requestClient = gorequest.NewHttp()
 
 	return c, nil
 }

@@ -2,7 +2,7 @@ package wechatpayopen
 
 import (
 	"context"
-	"encoding/json"
+	"go.dtapp.net/gojson"
 	"go.dtapp.net/gorequest"
 	"net/http"
 )
@@ -27,20 +27,18 @@ type ProfitSharingOrdersResponse struct {
 }
 
 type ProfitSharingOrdersResult struct {
-	Result   ProfitSharingOrdersResponse // 结果
-	Body     []byte                      // 内容
-	Http     gorequest.Response          // 请求
-	Err      error                       // 错误
-	ApiError ApiError                    // 接口错误
+	Result ProfitSharingOrdersResponse // 结果
+	Body   []byte                      // 内容
+	Http   gorequest.Response          // 请求
 }
 
-func newProfitSharingOrdersResult(result ProfitSharingOrdersResponse, body []byte, http gorequest.Response, err error, apiError ApiError) *ProfitSharingOrdersResult {
-	return &ProfitSharingOrdersResult{Result: result, Body: body, Http: http, Err: err, ApiError: apiError}
+func newProfitSharingOrdersResult(result ProfitSharingOrdersResponse, body []byte, http gorequest.Response) *ProfitSharingOrdersResult {
+	return &ProfitSharingOrdersResult{Result: result, Body: body, Http: http}
 }
 
 // ProfitSharingOrders 请求分账API
 // https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter8_1_1.shtml
-func (c *Client) ProfitSharingOrders(ctx context.Context, notMustParams ...gorequest.Params) *ProfitSharingOrdersResult {
+func (c *Client) ProfitSharingOrders(ctx context.Context, notMustParams ...gorequest.Params) (*ProfitSharingOrdersResult, ApiError, error) {
 	// 参数
 	params := gorequest.NewParamsWith(notMustParams...)
 	params.Set("sub_mchid", c.GetSubMchId()) // 子商户号
@@ -49,13 +47,13 @@ func (c *Client) ProfitSharingOrders(ctx context.Context, notMustParams ...goreq
 	// 请求
 	request, err := c.request(ctx, apiUrl+"/v3/profitsharing/orders", params, http.MethodPost)
 	if err != nil {
-		return newProfitSharingOrdersResult(ProfitSharingOrdersResponse{}, request.ResponseBody, request, err, ApiError{})
+		return newProfitSharingOrdersResult(ProfitSharingOrdersResponse{}, request.ResponseBody, request), ApiError{}, err
 	}
 	// 定义
 	var response ProfitSharingOrdersResponse
-	err = json.Unmarshal(request.ResponseBody, &response)
+	err = gojson.Unmarshal(request.ResponseBody, &response)
 	// 错误
 	var apiError ApiError
-	err = json.Unmarshal(request.ResponseBody, &apiError)
-	return newProfitSharingOrdersResult(response, request.ResponseBody, request, err, apiError)
+	err = gojson.Unmarshal(request.ResponseBody, &apiError)
+	return newProfitSharingOrdersResult(response, request.ResponseBody, request), apiError, err
 }

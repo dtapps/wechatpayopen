@@ -4,11 +4,11 @@ import (
 	"go.dtapp.net/golog"
 )
 
-// ConfigApiClientFun 日志配置
-func (c *Client) ConfigApiClientFun(apiClientFun golog.ApiClientFun) {
-	apiClient := apiClientFun()
-	if apiClient != nil {
-		c.log.client = apiClient
-		c.log.status = true
+// ConfigApiGormFun 接口日志配置
+func (c *Client) ConfigApiGormFun(apiClientFun golog.ApiGormFun) {
+	client := apiClientFun()
+	if client != nil {
+		c.gormLog.client = client
+		c.gormLog.status = true
 	}
 }

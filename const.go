@@ -6,10 +6,8 @@ const (
 	WechatPayAPIServerBackup = "https://api2.mch.weixin.qq.com" // 微信支付 API 备份地址
 )
 
-// SDK 相关信息
 const (
 	LogTable = "wechatpayopen"
-	Version  = "1.0.27" // SDK 版本
 )
 
 // 请求报文签名相关常量

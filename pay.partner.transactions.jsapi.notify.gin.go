@@ -2,8 +2,8 @@ package wechatpayopen
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"go.dtapp.net/gojson"
 )
 
 // PayPartnerTransactionsJsapiNotifyGinRequest JSAPI下单 - 回调通知 - 请求参数
@@ -34,7 +34,7 @@ func (c *Client) PayPartnerTransactionsJsapiNotifyGin(ctx context.Context, ginCt
 		return validateJson, response, gcm, err
 	}
 
-	err = json.Unmarshal(gcm, &response)
+	err = gojson.Unmarshal(gcm, &response)
 
 	return validateJson, response, gcm, err
 }

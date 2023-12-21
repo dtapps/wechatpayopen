@@ -2,8 +2,8 @@ package wechatpayopen
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"go.dtapp.net/gojson"
 )
 
 // ProfitSharingReceiversNotifyGinRequest 分账动账通知API - 回调通知 - 请求参数
@@ -34,7 +34,7 @@ func (c *Client) ProfitSharingReceiversNotifyGin(ctx context.Context, ginCtx *gi
 		return validateJson, response, gcm, err
 	}
 
-	err = json.Unmarshal(gcm, &response)
+	err = gojson.Unmarshal(gcm, &response)
 
 	return validateJson, response, gcm, err
 }
