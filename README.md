@@ -2,7 +2,7 @@
 <a href="https://www.dtapp.net/">Golang</a>
 </h1>
 
-📦 Golang WeChatPayOpen
+📦 Golang 微信支付开放平台
 
 [comment]: <> (go)
 [![godoc](https://pkg.go.dev/badge/go.dtapp.net/wechatpayopen?status.svg)](https://pkg.go.dev/go.dtapp.net/wechatpayopen)
@@ -13,5 +13,5 @@
 #### 安装
 
 ```go
-go get -v -u go.dtapp.net/wechatpayopen@v1.0.28
+go get -v -u go.dtapp.net/wechatpayopen@v1.0.29
 ```
