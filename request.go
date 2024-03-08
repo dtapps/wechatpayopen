@@ -25,14 +25,8 @@ func (c *Client) request(ctx context.Context, url string, param gorequest.Params
 	// 设置JSON格式
 	client.SetContentTypeJson()
 
-	// 设置用户代理
-	client.SetUserAgent(gorequest.GetRandomUserAgentSystem())
-
 	// 设置参数
 	client.SetParams(param)
-
-	// 设置用户代理
-	client.SetUserAgent(gorequest.GetRandomUserAgentSystem())
 
 	// 设置头部
 	client.SetHeader("Authorization", authorization)
@@ -48,9 +42,6 @@ func (c *Client) request(ctx context.Context, url string, param gorequest.Params
 	// 记录日志
 	if c.gormLog.status {
 		go c.gormLog.client.Middleware(ctx, request)
-	}
-	if c.mongoLog.status {
-		go c.mongoLog.client.Middleware(ctx, request)
 	}
 
 	return request, err
