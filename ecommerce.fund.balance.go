@@ -3,7 +3,6 @@ package wechatpayopen
 import (
 	"context"
 	"fmt"
-	"go.dtapp.net/gojson"
 	"go.dtapp.net/gorequest"
 	"net/http"
 )
@@ -29,15 +28,16 @@ func newEcommerceFundBalanceResult(result EcommerceFundBalanceResponse, body []b
 // accountType 账户类型 BASIC：基本账户 OPERATION：运营账户 FEES：手续费账户
 // https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter7_7_1.shtml
 func (c *Client) EcommerceFundBalance(ctx context.Context, accountType string) (*EcommerceFundBalanceResult, error) {
+
+	// OpenTelemetry链路追踪
+	ctx = c.TraceStartSpan(ctx, fmt.Sprintf("v3/ecommerce/fund/balance/%s?account_type=%s", c.GetSubMchId(), accountType))
+	defer c.TraceEndSpan()
+
 	// 参数
 	params := gorequest.NewParams()
+
 	// 请求
-	request, err := c.request(ctx, fmt.Sprintf(apiUrl+"/v3/ecommerce/fund/balance/%s?account_type=%s", c.GetSubMchId(), accountType), params, http.MethodGet)
-	if err != nil {
-		return newEcommerceFundBalanceResult(EcommerceFundBalanceResponse{}, request.ResponseBody, request), err
-	}
-	// 定义
 	var response EcommerceFundBalanceResponse
-	err = gojson.Unmarshal(request.ResponseBody, &response)
+	request, err := c.request(ctx, fmt.Sprintf("v3/ecommerce/fund/balance/%s?account_type=%s", c.GetSubMchId(), accountType), params, http.MethodGet, &response, nil)
 	return newEcommerceFundBalanceResult(response, request.ResponseBody, request), err
 }

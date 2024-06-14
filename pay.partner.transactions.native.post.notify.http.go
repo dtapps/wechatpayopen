@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/xml"
 	"go.dtapp.net/gojson"
+	"go.opentelemetry.io/otel/codes"
 	"net/http"
 	"time"
 )
@@ -28,16 +29,29 @@ type PayPartnerTransactionsNativePostNotifyHttpRequest struct {
 // https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_4_5.shtml
 func (c *Client) PayPartnerTransactionsNativePostNotifyHttp(ctx context.Context, w http.ResponseWriter, r *http.Request) (validateXml PayPartnerTransactionsNativePostNotifyHttpRequest, response PayPartnerTransactionsNativePostNotifyHttpResponse, gcm []byte, err error) {
 
+	// OpenTelemetry链路追踪
+	ctx = c.TraceStartSpan(ctx, "PayPartnerTransactionsNativePostNotifyHttp")
+	defer c.TraceEndSpan()
+
 	// 解析
 	err = xml.NewDecoder(r.Body).Decode(&validateXml)
+	if err != nil {
+		c.TraceRecordError(err)
+		c.TraceSetStatus(codes.Error, err.Error())
+	}
 
 	gcm, err = c.decryptGCM(c.GetApiV3(), validateXml.Resource.Nonce, validateXml.Resource.Ciphertext, validateXml.Resource.AssociatedData)
 	if err != nil {
+		c.TraceRecordError(err)
+		c.TraceSetStatus(codes.Error, err.Error())
 		return validateXml, response, gcm, err
 	}
 
 	err = gojson.Unmarshal(gcm, &response)
-
+	if err != nil {
+		c.TraceRecordError(err)
+		c.TraceSetStatus(codes.Error, err.Error())
+	}
 	return validateXml, response, gcm, err
 }
 

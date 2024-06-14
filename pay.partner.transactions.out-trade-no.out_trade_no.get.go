@@ -2,7 +2,7 @@ package wechatpayopen
 
 import (
 	"context"
-	"go.dtapp.net/gojson"
+	"fmt"
 	"go.dtapp.net/gorequest"
 	"net/http"
 	"time"
@@ -49,18 +49,17 @@ func newPayPartnerTransactionsOutTradeNoOutTradeNoGetResult(result PayPartnerTra
 // PayPartnerTransactionsOutTradeNoOutTradeNoGet 商户订单号查询
 // https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_4_2.shtml
 func (c *Client) PayPartnerTransactionsOutTradeNoOutTradeNoGet(ctx context.Context, outTradeNo string) (*PayPartnerTransactionsOutTradeNoOutTradeNoGetResult, ApiError, error) {
+
+	// OpenTelemetry链路追踪
+	ctx = c.TraceStartSpan(ctx, fmt.Sprintf("v3/pay/partner/transactions/out-trade-no/%s?sp_mchid=%s&sub_mchid=%s", outTradeNo, c.GetSpMchId(), c.GetSubMchId()))
+	defer c.TraceEndSpan()
+
 	// 参数
 	params := gorequest.NewParams()
+
 	// 请求
-	request, err := c.request(ctx, apiUrl+"/v3/pay/partner/transactions/out-trade-no/"+outTradeNo+"?sp_mchid="+c.GetSpMchId()+"&sub_mchid="+c.GetSubMchId(), params, http.MethodGet)
-	if err != nil {
-		return newPayPartnerTransactionsOutTradeNoOutTradeNoGetResult(PayPartnerTransactionsOutTradeNoOutTradeNoGetResponse{}, request.ResponseBody, request), ApiError{}, err
-	}
-	// 定义
 	var response PayPartnerTransactionsOutTradeNoOutTradeNoGetResponse
-	err = gojson.Unmarshal(request.ResponseBody, &response)
-	// 错误
 	var apiError ApiError
-	err = gojson.Unmarshal(request.ResponseBody, &apiError)
+	request, err := c.request(ctx, fmt.Sprintf("v3/pay/partner/transactions/out-trade-no/%s?sp_mchid=%s&sub_mchid=%s", outTradeNo, c.GetSpMchId(), c.GetSubMchId()), params, http.MethodGet, &response, &apiError)
 	return newPayPartnerTransactionsOutTradeNoOutTradeNoGetResult(response, request.ResponseBody, request), apiError, err
 }

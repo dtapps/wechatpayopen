@@ -3,7 +3,6 @@ package wechatpayopen
 import (
 	"context"
 	"fmt"
-	"go.dtapp.net/gojson"
 	"go.dtapp.net/gorequest"
 	"net/http"
 )
@@ -27,18 +26,17 @@ func newMerchantFundBalanceResult(result MerchantFundBalanceResponse, body []byt
 // accountType 账户类型 BASIC：基本账户 OPERATION：运营账户 FEES：手续费账户
 // https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter7_7_3.shtml
 func (c *Client) MerchantFundBalance(ctx context.Context, accountType string) (*MerchantFundBalanceResult, ApiError, error) {
+
+	// OpenTelemetry链路追踪
+	ctx = c.TraceStartSpan(ctx, fmt.Sprintf("v3/merchant/fund/balance/%s", accountType))
+	defer c.TraceEndSpan()
+
 	// 参数
 	params := gorequest.NewParams()
+
 	// 请求
-	request, err := c.request(ctx, fmt.Sprintf(apiUrl+"/v3/merchant/fund/balance/%s", accountType), params, http.MethodGet)
-	if err != nil {
-		return newMerchantFundBalanceResult(MerchantFundBalanceResponse{}, request.ResponseBody, request), ApiError{}, err
-	}
-	// 定义
 	var response MerchantFundBalanceResponse
-	err = gojson.Unmarshal(request.ResponseBody, &response)
-	// 错误
 	var apiError ApiError
-	err = gojson.Unmarshal(request.ResponseBody, &apiError)
+	request, err := c.request(ctx, fmt.Sprintf("v3/merchant/fund/balance/%s", accountType), params, http.MethodGet, &response, &apiError)
 	return newMerchantFundBalanceResult(response, request.ResponseBody, request), apiError, err
 }

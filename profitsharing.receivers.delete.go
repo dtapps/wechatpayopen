@@ -2,7 +2,6 @@ package wechatpayopen
 
 import (
 	"context"
-	"go.dtapp.net/gojson"
 	"go.dtapp.net/gorequest"
 	"net/http"
 )
@@ -26,6 +25,11 @@ func newProfitSharingReceiversDeleteResult(result ProfitSharingReceiversDeleteRe
 // ProfitSharingReceiversDelete 删除分账接收方API
 // https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter8_1_9.shtml
 func (c *Client) ProfitSharingReceiversDelete(ctx context.Context, Type, account string) (*ProfitSharingReceiversDeleteResult, ApiError, error) {
+
+	// OpenTelemetry链路追踪
+	ctx = c.TraceStartSpan(ctx, "v3/profitsharing/receivers/delete")
+	defer c.TraceEndSpan()
+
 	// 参数
 	params := gorequest.NewParams()
 	params.Set("sub_mchid", c.GetSubMchId()) // 子商户号
@@ -41,16 +45,10 @@ func (c *Client) ProfitSharingReceiversDelete(ctx context.Context, Type, account
 	if Type == PERSONAL_SUB_OPENID {
 		params.Set("account", account) // 个人sub_openid
 	}
+
 	// 请求
-	request, err := c.request(ctx, apiUrl+"/v3/profitsharing/receivers/delete", params, http.MethodPost)
-	if err != nil {
-		return newProfitSharingReceiversDeleteResult(ProfitSharingReceiversDeleteResponse{}, request.ResponseBody, request), ApiError{}, err
-	}
-	// 定义
 	var response ProfitSharingReceiversDeleteResponse
-	err = gojson.Unmarshal(request.ResponseBody, &response)
-	// 错误
 	var apiError ApiError
-	err = gojson.Unmarshal(request.ResponseBody, &apiError)
+	request, err := c.request(ctx, "v3/profitsharing/receivers/delete", params, http.MethodPost, &response, &apiError)
 	return newProfitSharingReceiversDeleteResult(response, request.ResponseBody, request), apiError, err
 }

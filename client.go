@@ -1,7 +1,8 @@
 package wechatpayopen
 
 import (
-	"go.dtapp.net/golog"
+	"go.dtapp.net/gorequest"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // ClientConfig 实例配置
@@ -30,16 +31,17 @@ type Client struct {
 		mchSslCer      string // pem 内容
 		mchSslKey      string // pem key 内容
 	}
-	gormLog struct {
-		status bool           // 状态
-		client *golog.ApiGorm // 日志服务
-	}
+	httpClient *gorequest.App // HTTP请求客户端
+	clientIP   string         // 客户端IP
+	trace      bool           // OpenTelemetry链路追踪
+	span       trace.Span     // OpenTelemetry链路追踪
 }
 
 // NewClient 创建实例化
 func NewClient(config *ClientConfig) (*Client, error) {
-
 	c := &Client{}
+
+	c.httpClient = gorequest.NewHttp()
 
 	c.config.spAppid = config.SpAppid
 	c.config.spMchId = config.SpMchId
@@ -50,5 +52,6 @@ func NewClient(config *ClientConfig) (*Client, error) {
 	c.config.mchSslCer = config.MchSslCer
 	c.config.mchSslKey = config.MchSslKey
 
+	c.trace = true
 	return c, nil
 }

@@ -2,8 +2,8 @@ package wechatpayopen
 
 // 微信支付 API 地址
 const (
-	apiUrl                   = "https://api.mch.weixin.qq.com"
-	WechatPayAPIServerBackup = "https://api2.mch.weixin.qq.com" // 微信支付 API 备份地址
+	apiUrl                   = "https://api.mch.weixin.qq.com/"
+	WechatPayAPIServerBackup = "https://api2.mch.weixin.qq.com/" // 微信支付 API 备份地址
 )
 
 const (

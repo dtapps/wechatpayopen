@@ -2,7 +2,7 @@ package wechatpayopen
 
 import (
 	"context"
-	"go.dtapp.net/gojson"
+	"fmt"
 	"go.dtapp.net/gorequest"
 	"net/http"
 )
@@ -39,21 +39,20 @@ func newProfitSharingOrdersOutOrderNoResult(result ProfitSharingOrdersOutOrderNo
 // ProfitSharingOrdersOutOrderNo 查询分账结果API
 // https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter8_1_2.shtml
 func (c *Client) ProfitSharingOrdersOutOrderNo(ctx context.Context, transactionId, outOrderNo string) (*ProfitSharingOrdersOutOrderNoResult, ApiError, error) {
+
+	// OpenTelemetry链路追踪
+	ctx = c.TraceStartSpan(ctx, fmt.Sprintf("v3/profitsharing/orders/%s", outOrderNo))
+	defer c.TraceEndSpan()
+
 	// 参数
 	params := gorequest.NewParams()
 	params.Set("sub_mchid", c.GetSubMchId())    // 子商户号
 	params.Set("transaction_id", transactionId) // 微信订单号
 	params.Set("out_order_no", outOrderNo)      // 商户分账单号
+
 	// 请求
-	request, err := c.request(ctx, apiUrl+"/v3/profitsharing/orders/"+outOrderNo, params, http.MethodGet)
-	if err != nil {
-		return newProfitSharingOrdersOutOrderNoResult(ProfitSharingOrdersOutOrderNoResponse{}, request.ResponseBody, request), ApiError{}, err
-	}
-	// 定义
 	var response ProfitSharingOrdersOutOrderNoResponse
-	err = gojson.Unmarshal(request.ResponseBody, &response)
-	// 错误
 	var apiError ApiError
-	err = gojson.Unmarshal(request.ResponseBody, &apiError)
+	request, err := c.request(ctx, fmt.Sprintf("v3/profitsharing/orders/%s", outOrderNo), params, http.MethodGet, &response, &apiError)
 	return newProfitSharingOrdersOutOrderNoResult(response, request.ResponseBody, request), apiError, err
 }

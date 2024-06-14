@@ -35,8 +35,13 @@ func newCertificatesResult(result CertificatesResponse, body []byte, http gorequ
 // Certificates 获取平台证书列表
 // https://pay.weixin.qq.com/wiki/doc/apiv3/apis/wechatpay5_1.shtml
 func (c *Client) Certificates(ctx context.Context) (*CertificatesResult, error) {
-	// 请求
-	request, err := c.request(ctx, apiUrl+"/v3/certificates", nil, http.MethodGet)
+
+	// OpenTelemetry链路追踪
+	ctx = c.TraceStartSpan(ctx, "pay")
+	defer c.TraceEndSpan()
+
+	// 参数
+	request, err := c.request(ctx, "v3/certificates", nil, http.MethodGet, &response, nil)
 	if err != nil {
 		return newCertificatesResult(CertificatesResponse{}, request.ResponseBody, request), err
 	}
