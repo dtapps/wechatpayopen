@@ -24,14 +24,14 @@ func newProfitSharingReceiversDeleteResult(result ProfitSharingReceiversDeleteRe
 
 // ProfitSharingReceiversDelete 删除分账接收方API
 // https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter8_1_9.shtml
-func (c *Client) ProfitSharingReceiversDelete(ctx context.Context, Type, account string) (*ProfitSharingReceiversDeleteResult, ApiError, error) {
+func (c *Client) ProfitSharingReceiversDelete(ctx context.Context, Type, account string, notMustParams ...gorequest.Params) (*ProfitSharingReceiversDeleteResult, ApiError, error) {
 
 	// OpenTelemetry链路追踪
 	ctx = c.TraceStartSpan(ctx, "v3/profitsharing/receivers/delete")
 	defer c.TraceEndSpan()
 
 	// 参数
-	params := gorequest.NewParams()
+	params := gorequest.NewParamsWith(notMustParams...)
 	params.Set("sub_mchid", c.GetSubMchId()) // 子商户号
 	params.Set("appid", c.GetSpAppid())      // 应用ID
 	params.Set("sub_appid", c.GetSubAppid()) // 子商户应用ID

@@ -48,14 +48,14 @@ func newPayPartnerTransactionsOutTradeNoOutTradeNoGetResult(result PayPartnerTra
 
 // PayPartnerTransactionsOutTradeNoOutTradeNoGet 商户订单号查询
 // https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter4_4_2.shtml
-func (c *Client) PayPartnerTransactionsOutTradeNoOutTradeNoGet(ctx context.Context, outTradeNo string) (*PayPartnerTransactionsOutTradeNoOutTradeNoGetResult, ApiError, error) {
+func (c *Client) PayPartnerTransactionsOutTradeNoOutTradeNoGet(ctx context.Context, outTradeNo string, notMustParams ...gorequest.Params) (*PayPartnerTransactionsOutTradeNoOutTradeNoGetResult, ApiError, error) {
 
 	// OpenTelemetry链路追踪
 	ctx = c.TraceStartSpan(ctx, fmt.Sprintf("v3/pay/partner/transactions/out-trade-no/%s?sp_mchid=%s&sub_mchid=%s", outTradeNo, c.GetSpMchId(), c.GetSubMchId()))
 	defer c.TraceEndSpan()
 
 	// 参数
-	params := gorequest.NewParams()
+	params := gorequest.NewParamsWith(notMustParams...)
 
 	// 请求
 	var response PayPartnerTransactionsOutTradeNoOutTradeNoGetResponse

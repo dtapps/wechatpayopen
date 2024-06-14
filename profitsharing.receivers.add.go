@@ -27,14 +27,14 @@ func newProfitSharingReceiversAddResult(result ProfitSharingReceiversAddResponse
 
 // ProfitSharingReceiversAdd 添加分账接收方API
 // https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter8_1_8.shtml
-func (c *Client) ProfitSharingReceiversAdd(ctx context.Context, Type, account, name, relationType, customRelation string) (*ProfitSharingReceiversAddResult, ApiError, error) {
+func (c *Client) ProfitSharingReceiversAdd(ctx context.Context, Type, account, name, relationType, customRelation string, notMustParams ...gorequest.Params) (*ProfitSharingReceiversAddResult, ApiError, error) {
 
 	// OpenTelemetry链路追踪
 	ctx = c.TraceStartSpan(ctx, "v3/profitsharing/receivers/delete")
 	defer c.TraceEndSpan()
 
 	// 参数
-	params := gorequest.NewParams()
+	params := gorequest.NewParamsWith(notMustParams...)
 	params.Set("sub_mchid", c.GetSubMchId()) // 子商户号
 	params.Set("appid", c.GetSpAppid())      // 应用ID
 	params.Set("sub_appid", c.GetSubAppid()) // 子商户应用ID

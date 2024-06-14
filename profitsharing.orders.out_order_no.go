@@ -38,14 +38,14 @@ func newProfitSharingOrdersOutOrderNoResult(result ProfitSharingOrdersOutOrderNo
 
 // ProfitSharingOrdersOutOrderNo 查询分账结果API
 // https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter8_1_2.shtml
-func (c *Client) ProfitSharingOrdersOutOrderNo(ctx context.Context, transactionId, outOrderNo string) (*ProfitSharingOrdersOutOrderNoResult, ApiError, error) {
+func (c *Client) ProfitSharingOrdersOutOrderNo(ctx context.Context, transactionId, outOrderNo string, notMustParams ...gorequest.Params) (*ProfitSharingOrdersOutOrderNoResult, ApiError, error) {
 
 	// OpenTelemetry链路追踪
 	ctx = c.TraceStartSpan(ctx, fmt.Sprintf("v3/profitsharing/orders/%s", outOrderNo))
 	defer c.TraceEndSpan()
 
 	// 参数
-	params := gorequest.NewParams()
+	params := gorequest.NewParamsWith(notMustParams...)
 	params.Set("sub_mchid", c.GetSubMchId())    // 子商户号
 	params.Set("transaction_id", transactionId) // 微信订单号
 	params.Set("out_order_no", outOrderNo)      // 商户分账单号

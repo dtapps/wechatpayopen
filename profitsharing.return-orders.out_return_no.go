@@ -34,14 +34,14 @@ func newProfitSharingReturnOrdersOutReturnNoResult(result ProfitSharingReturnOrd
 
 // ProfitSharingReturnOrdersOutReturnNo 查询分账回退结果API
 // https://pay.weixin.qq.com/wiki/doc/apiv3_partner/apis/chapter8_1_4.shtml
-func (c *Client) ProfitSharingReturnOrdersOutReturnNo(ctx context.Context, outReturnNo, outOrderNo string) (*ProfitSharingReturnOrdersOutReturnNoResult, ApiError, error) {
+func (c *Client) ProfitSharingReturnOrdersOutReturnNo(ctx context.Context, outReturnNo, outOrderNo string, notMustParams ...gorequest.Params) (*ProfitSharingReturnOrdersOutReturnNoResult, ApiError, error) {
 
 	// OpenTelemetry链路追踪
 	ctx = c.TraceStartSpan(ctx, fmt.Sprintf("v3/profitsharing/return-orders/%s", outReturnNo))
 	defer c.TraceEndSpan()
 
 	// 参数
-	params := gorequest.NewParams()
+	params := gorequest.NewParamsWith(notMustParams...)
 	params.Set("sub_mchid", c.GetSubMchId()) // 子商户号
 	params.Set("out_return_no", outReturnNo) // 商户回退单号
 	params.Set("out_order_no", outOrderNo)   // 商户分账单号
